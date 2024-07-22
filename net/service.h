@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 namespace protocol
 {
 	/* @brief   Not a legit RPC, but it does run functions from other processes' memory space */
@@ -39,16 +41,12 @@ namespace protocol
             ULONG Data[dataMaxSize];
         };
 
-		template <class T>
 		class service
 		{
 		public:
 			service() = delete;
 			
 			explicit service(frame_t* in, frame_t* out) : in_(in), out_(out) {}
-
-			template<typename T, typename = typename std::enable_if<!std::is_same<T, frame_t*>::value>::type>
-			explicit service(T* in, T* out) : in_(reinterpret_cast<frame_t*>(in)), out_(reinterpret_cast<frame_t*>(out)) {}
 			
 			virtual ~service() = default;
 			
@@ -81,6 +79,10 @@ namespace protocol
 /*
 //// DEPRECATED, but leaving it here in case of future use
 
+//// Seems like the followings can't be used due to TwinCAT Constraints
+// template<typename T, typename = typename std::enable_if<!std::is_same<T, frame_t*>::value>::type*>
+// explicit service(T* in, T* out) : in_(reinterpret_cast<frame_t*>(in)), out_(reinterpret_cast<frame_t*>(out)) {}
+
 // template <typename T, typename Ret, typename... Args>
 // void assign(const int id, T* instance, Ret(T*::*func)(Args...)) {
 // mapFunc_[id] = [=](Args... args) {
@@ -95,57 +97,5 @@ namespace protocol
 // auto func = it->second;
 // return func(args...);
 // }
-// }
-
-// /*
-// template <typename F>
-// void assign(const uint8_t id, F func) {
-// funcMap_[id] = reinterpret_cast<void*>(func);
-// }
-
-// template<typename... Args>
-// auto call(const uint8_t id, Args... funcArgs) -> typename std::invoke_result<decltype(reinterpret_cast<funcArgs*>(nullptr))>::type { //std::declval<F>()(funcArgs...)) {
-// auto it = funcMap_.find(id);
-// if (it != funcMap_.end()) {
-// using F = decltype(reinterpret_cast<funcArgs*>(nullptr));
-// F func = reinterpret_cast<F>(it->second);
-// return func(funcArgs...);
-// }
-// return status_t::FUNC_NOT_FOUND;
-// }
-
-// // TwinCAT���� ���������� �ڵ������ϴ� ������ Ÿ������ ���� const_cast�� ����� �� �ۿ� ����.
-// // 5 * default_cycle(ms) timeout
-// inline rpc::frame_t read(const rpc::frame_t data) {
-// static rpc::frame_t prev = rpc::frame_t{ const_cast<char*>(&protocol::rpc::status::not_received), 0 };
-// static int timerCount = 0;
-
-// // write
-// if (*prev.Id != *data.Id) {
-// (void)write(data);
-// prev = data;
-// }
-
-// // if received id is same as the id sent, successfully received the updated data
-// if (*data.Id == *in_.Id) {
-// timerCount = 0;
-// return out_;
-// }
-
-// // timeout
-// timerCount++;
-// return (timerCount % 5) ? rpc::frame_t{ const_cast<char*>(&protocol::rpc::status::timeout), 0 } : rpc::frame_t{ const_cast<char*>(&protocol::rpc::status::not_received), 0 };
-// }
-
-// inline char write(const rpc::frame_t data) {
-// static rpc::frame_t prev = rpc::frame_t{ const_cast<char*>(&protocol::rpc::status::not_received), 0 };
-// if (prev.Id != data.Id) {
-// in_ = data;
-// }
-// return (*data.Id == *in_.Id) ? protocol::rpc::status::received : protocol::rpc::status::not_received;
-// }
-
-// void run_server() {
-// read();
 // }
 */

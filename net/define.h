@@ -9,18 +9,37 @@ namespace protocol
 {
     namespace rpc
     {
-        namespace funcId
+        namespace id
         {
             static constexpr ULONG none = 0x00;
 
-            struct {
+            struct led {
                 static constexpr ULONG set = 0x08;
                 static constexpr ULONG status = 0x09;
-            } led;
+            };
 
-            struct {
+            struct btn {
                 static constexpr ULONG status = 0x010;
-            } btn;
+            };
+        }
+
+        namespace param
+        {
+            struct led {
+                struct mode {
+                    static constexpr ULONG blink = 0x00;
+                    static constexpr ULONG solid = 0x01;
+                };
+
+                struct color {
+                    static constexpr ULONG none = 0x00;
+                    static constexpr ULONG red = 0x01;
+                    static constexpr ULONG green = 0x02;
+                    static constexpr ULONG blue = 0x04;
+                    static constexpr ULONG yellow = red | green;
+                    static constexpr ULONG white = red | green | blue;
+                };
+            };
         }
     }
 }

@@ -1,6 +1,10 @@
 #pragma once
 
+#include <unordered_map>
+
 #include "base.h"
+
+#include "net/define.h"
 
 namespace io
 {
@@ -38,12 +42,16 @@ namespace io
 				counter = 0;
 			} while (false);
 		}
-		
-		template <typename M, typename C, 
-				  typename = typename std::enable_if<std::is_integral<M>::value && std::is_integral<C>::value>::type>
-		void set(M mode, C color) {
-			mode_ = static_cast<mode_t>(mode);
-			*data_.digital_ = color_ = static_cast<color_t>(color);
+
+		void set(mode_t mode, color_t color) {
+			mode_ = mode;
+			*data_.digital_ = color_ = color;
+		}
+
+		// From RPC
+		void set(ULONG mode, ULONG color) {
+			mode_ = static_cast<mode_t>(modeMap[mode]);
+			*data_.digital_ = color_ = static_cast<color_t>(colorMap[color]);
 		}
 
 	protected:
@@ -51,6 +59,18 @@ namespace io
 		color_t color_;
 		unsigned int cycle_;
 
+		std::unordered_map<ULONG, mode_t> modeMap = {
+			{ protocol::rpc::param::led::mode::blink, mode_t::blink },
+			{ protocol::rpc::param::led::mode::solid, mode_t::solid }
+		};
+
+		std::unordered_map<ULONG, color_t> colorMap = {
+			{ protocol::rpc::param::led::color::none, color_t::none },
+			{ protocol::rpc::param::led::color::red, color_t::red },
+			{ protocol::rpc::param::led::color::green, color_t::blue },
+			{ protocol::rpc::param::led::color::yellow, color_t::yellow },
+			{ protocol::rpc::param::led::color::white, color_t::white }
+		};
 	private:
 		static constexpr int default_cycle_ = 50;
 	};

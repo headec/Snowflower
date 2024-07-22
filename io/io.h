@@ -4,11 +4,9 @@
 
 #include "IOInterfaces.h"
 
-//#include "define.h"
 #include "led.h"
 #include "button.h"
 
-#include "net/define.h"
 #include "net/service.h"
 
 class Cio 

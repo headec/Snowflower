@@ -250,7 +250,7 @@ VOID CModule1::RemoveModuleFromCaller()
 void CModule1::disconnected() {
 	if (once()) {
 		elmos_.run([](slv::elmopp* e) { e->disable(); });
-		mainService_.write(protocol::rpc::frame_t(protocol::rpc::funcId::led.set, { io::led::color_t::none }));
+		mainService_.write(protocol::rpc::frame_t(protocol::rpc::id::led::set, { protocol::rpc::param::led::color::none }));
 		// led_.set(io::led::mode_t::solid, io::led::color_t::none);
 	}
 	
@@ -263,7 +263,7 @@ void CModule1::disconnected() {
 }
 
 void CModule1::init() {
-	mainService_.write(protocol::rpc::frame_t(protocol::rpc::funcId::led.set, { io::led::color_t::white }));
+	mainService_.write(protocol::rpc::frame_t(protocol::rpc::id::led::set, { protocol::rpc::param::led::color::white }));
 	// led_.set(io::led::mode_t::blink, io::led::color_t::white);
 
 	// configure elmos and set intializing values, then attach to the manager if necessary
@@ -284,7 +284,7 @@ void CModule1::init() {
 void CModule1::idle() {
 	if(once()) { 
 		elmos_.run([](slv::elmopp* e) { e->disable(); });
-		mainService_.write(protocol::rpc::frame_t(protocol::rpc::funcId::led.set, { io::led::color_t::white }));
+		mainService_.write(protocol::rpc::frame_t(protocol::rpc::id::led::set, { protocol::rpc::param::led::color::white }));
 		// led_.set(io::led::mode_t::solid, io::led::color_t::white);
 	}
 
@@ -301,7 +301,7 @@ void CModule1::idle() {
 
 void CModule1::ready() {
 	if (once()) {
-		mainService_.write(protocol::rpc::frame_t(protocol::rpc::funcId::led.set, { io::led::color_t::blue }));
+		mainService_.write(protocol::rpc::frame_t(protocol::rpc::id::led::set, { protocol::rpc::param::led::color::blue }));
 		// led_.set(io::led::mode_t::blink, io::led::color_t::blue);
 	}
 
@@ -322,22 +322,22 @@ void CModule1::ready() {
 
 void CModule1::active() {
 	if (once()) {
-		mainService_.write(protocol::rpc::frame_t(protocol::rpc::funcId::led.set, { io::led::color_t::green }));
+		mainService_.write(protocol::rpc::frame_t(protocol::rpc::id::led::set, { protocol::rpc::param::led::color::green }));
 		// led_.set(io::led::mode_t::solid, io::led::color_t::green);
 	}
 
 	elmos_.run([](slv::elmopp* e) { e->tryMove(); });
 
-	if (mainService_.isButtonPressed()) {
-		if (mainService_.isButtonEdge() && elmos_.is([](slv::elmopp* e) { return e->isReached(); })) {
+	if (mainService_.read().Data[0] > 0) {
+		if (mainService_.read().Data[1] && elmos_.is([](slv::elmopp* e) { return e->isReached(); })) {
 			elmos_.run([this](slv::elmopp* e) { e->disable(); }, &translation);
 		}
 		else {
 			elmos_.run([](slv::elmopp* e) { if (!e->isReached()) e->stop();	});
 		}
 	}
-	else if (mainService_.isButtonReleased()) {
-		if (mainService_.isButtonEdge()) {
+	else if (mainService_.read().Data[0] == 0) {
+		if (mainService_.read().Data[1]) {
 			elmos_.run([](slv::elmopp* e) { if (!e->isEnabled()) e->enable(); });
 		}
 	}
@@ -371,7 +371,7 @@ void CModule1::active() {
 void CModule1::emergency() {
 	if (once()) {
 		elmos_.run([](slv::elmopp* e) { e->disable(); });
-		mainService_.write(protocol::rpc::frame_t(protocol::rpc::funcId::led.set, { io::led::color_t::yellow }));
+		mainService_.write(protocol::rpc::frame_t(protocol::rpc::id::led::set, { protocol::rpc::param::led::color::yellow }));
 		// led_.set(io::led::mode_t::blink, io::led::color_t::yellow);
 	}
 
@@ -390,7 +390,7 @@ void CModule1::recovery() {
 	static USHORT t_seed = 0;
 
 	if (once()) {
-		mainService_.write(protocol::rpc::frame_t(protocol::rpc::funcId::led.set, { io::led::color_t::yellow }));
+		mainService_.write(protocol::rpc::frame_t(protocol::rpc::id::led::set, { protocol::rpc::param::led::color::yellow }));
 		// led_.set(io::led::mode_t::blink, io::led::color_t::yellow);
 	}
 
@@ -413,7 +413,7 @@ void CModule1::recovery() {
 void CModule1::error() {
 	if (once()) {
 		elmos_.run([](slv::elmopp* e) { e->disable(); });
-		mainService_.write(protocol::rpc::frame_t(protocol::rpc::funcId::led.set, { io::led::color_t::red }));
+		mainService_.write(protocol::rpc::frame_t(protocol::rpc::id::led::set, { protocol::rpc::param::led::color::red }));
 		// led_.set(io::led::mode_t::solid, io::led::color_t::red);
 	}
 

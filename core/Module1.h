@@ -4,12 +4,15 @@
 
 #include "SnowflowerInterfaces.h"
 
+#include <vector>
+#include <unordered_map>
+
 #include "elmopp.h"
 #include "manager.h"
 
 #include "net/service.h"
 #include "net/protocol.h"
-#include "net/rpc.h"
+#include "net/define.h"
 
 class CModule1 
 	: public ITComObject

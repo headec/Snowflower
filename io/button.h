@@ -12,7 +12,7 @@ namespace io
 		~button() {}
 
 		bool isEdge() {
-			bool res = prev_ ^ read();
+			bool res = static_cast<bool>(prev_ ^ read());
 			prev_ = read();
 			return res;
 		}

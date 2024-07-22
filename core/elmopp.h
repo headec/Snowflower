@@ -1,6 +1,7 @@
 #pragma once
 
 #include "elmo.h"
+#include "net/protocol.h"
 
 namespace slv
 {
